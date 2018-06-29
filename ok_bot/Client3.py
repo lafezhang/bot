@@ -9,6 +9,8 @@ import time
 
 import logging
 import logging.handlers
+import json
+import os
 
 LOG_FILE = 'history.log'
 
@@ -31,6 +33,15 @@ okcoinRESTURL = 'www.okb.com'  # 请求注意：国内账号需要 修改为 www
 okcoinSpot = OKCoinSpot(okcoinRESTURL, apikey, secretkey)
 
 r = -0.005
+
+
+def mkdir(path):
+    folder = os.path.exists(path)
+    if not folder:  # 判断是否存在文件夹如果不存在则创建为文件夹
+        os.makedirs(path)  # makedirs 创建文件时如果路径不存在会创建这个路径
+
+
+folder_name = ""
 
 
 def getAV(prices, length):
@@ -90,9 +101,12 @@ class Coin(object):
         self.type = 0
 
     def check_kline(self, time_type):
-        print("checking kline:"+self.symbol)
+        global folder_name
+        print("checking kline:" + self.symbol)
         kline = okcoinSpot.kline(self.symbol, time_type, 30)
-
+        file = open(os.path.join(folder_name, self.symbol+".kline"), 'w')
+        file.write(json.dumps(kline))
+        file.close()
         reversed_kline = kline[::-1]
         price_array = [float(x[4]) for x in reversed_kline]
         av5 = sum(price_array[:5]) / 5
@@ -145,10 +159,16 @@ def run(symbols, time_type):
         pass
 
     while True:
+        global folder_name
+        from_time = time.time()
+        folder_name = time.strftime("%Y-%m-%d_%H:%M:%S", time.localtime(from_time))
+
+        mkdir(folder_name)
+
         logger.info('check klines')
 
         for symbol in symbols:
-            logger.info("checking:"+symbol)
+            logger.info("checking:" + symbol)
             coins[symbol].check_kline(time_type)
 
         for symbol in symbols:
@@ -177,7 +197,8 @@ def run(symbols, time_type):
         pass
 
 
-run(["cic_usdt", "mith_usdt", "theta_usdt", "swftc_usdt", "nas_usdt", "trx_usdt", "pra_usdt", "mana_usdt","eos_usdt", "bch_usdt", "okb_usdt", "btm_usdt", "cmt_usdt", "ont_usdt", "wfee_usdt", "zip_usdt", "soc_usdt"], '4hour')
+run(["cic_usdt", "mith_usdt", "theta_usdt", "swftc_usdt", "nas_usdt", "trx_usdt", "pra_usdt", "mana_usdt", "eos_usdt",
+     "bch_usdt", "okb_usdt", "btm_usdt", "cmt_usdt", "ont_usdt", "wfee_usdt", "zip_usdt", "soc_usdt"], '4hour')
 
 # test2('eos_usdt', 1, 0.08)
 # result = []
