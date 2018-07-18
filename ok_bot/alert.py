@@ -20,7 +20,7 @@ args = parser.parse_args()
 
 test_folder = args.t
 test_symbol = args.s
-capture_mode = parser.capture
+capture_mode = args.capture
 
 def mkdir(path):
     folder = os.path.exists(path)
@@ -91,19 +91,24 @@ class MessageSourceWebSocket(MessageSource):
         for s in symbols:
             ws.send("""{'event':'addChannel','channel':'ok_sub_spot_%s_deals'}""" % s)
             ws.send("""{'event':'addChannel','channel':'ok_sub_spot_%s_depth'}""" % s)
-
+        last_check_time = time.time()
         try:
             while (1):
                 result = ws.recv()
                 result_json = json.loads(result)
+                t = time.time()
+                if t - last_check_time > 30*60:
+                    Notification.log("alive")
+                    last_check_time = t
+
                 for data in result_json:
                     if "channel" in data:
                         if data["channel"][-6:] == "_deals":
                             symbol = data["channel"][12:-6]
-                            self.dispatch_deal_msg(data['data'], symbol, time.time())
+                            self.dispatch_deal_msg(data['data'], symbol, t)
                         elif data["channel"][-6:] == "_depth":
                             symbol = data["channel"][12:-6]
-                            self.dispatch_depth_msg(data['data'], symbol, time.time())
+                            self.dispatch_depth_msg(data['data'], symbol, t)
 
             pass
         except Exception as e:
