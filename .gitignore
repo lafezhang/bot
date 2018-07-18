@@ -3,3 +3,8 @@
 __pycache__/
 *.log
 *.out
+
+capture
+logs
+charts
+ok_bot_*
