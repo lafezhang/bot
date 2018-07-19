@@ -88,6 +88,9 @@ class MessageSourceWebSocket(MessageSource):
         for h in self.handlers:
             symbols = symbols.union(h.get_cfg_symbols_set())
 
+        if capture_mode:
+            self.handlers = [Handlers.CaptureHandler(notify)]
+
         for s in symbols:
             ws.send("""{'event':'addChannel','channel':'ok_sub_spot_%s_deals'}""" % s)
             ws.send("""{'event':'addChannel','channel':'ok_sub_spot_%s_depth'}""" % s)
@@ -150,10 +153,8 @@ def run_test(db_folder):
 def run():
     while 1:
         try:
-            if capture_mode:
-                handlers = [Handlers.CaptureHandler(notify)]
-            else:
-                handlers = [Handlers.VolumeAlertHandler(notify),
+
+            handlers = [Handlers.VolumeAlertHandler(notify),
                             Handlers.DepthDiffAlertHandler(notify),
                             Handlers.HengpanAlertHandler(notify)]
 
