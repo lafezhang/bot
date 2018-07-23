@@ -43,7 +43,7 @@ class SellOrder(object):
                 cc = 0
                 while self.status not in [-1, 2, 1] and cc < 10:
                     self.update_status()
-                    time.sleep(2)
+                    time.sleep(0.2)
                     cc += 1
                 return
 
