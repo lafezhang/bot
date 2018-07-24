@@ -37,7 +37,6 @@ class SellOrder(object):
     def cancel_order(self):
         while 1:
             try:
-                Notification.log("取消中,%s, %d" % (self.symbol, self.orderid))
                 result = json.loads(okcoinSpot.cancelOrder(self.symbol, self.orderid))
 
                 cc = 0
