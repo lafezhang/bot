@@ -88,6 +88,7 @@ class MessageSourceWebSocket(MessageSource):
         for h in self.handlers:
             symbols = symbols.union(h.get_cfg_symbols_set())
 
+        print("symbols", symbols)
         if capture_mode:
             self.handlers = [Handlers.CaptureHandler(notify)]
 
