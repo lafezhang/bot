@@ -24,7 +24,6 @@ class SellOrder(object):
         # 0: 未成交
         # 1: 部分成交
         # 2: 完全成交
-        # 2: 完全成交
         # 3: 撤单处理中
         self.status = -2
 
@@ -44,6 +43,10 @@ class SellOrder(object):
                     self.update_status()
                     time.sleep(0.2)
                     cc += 1
+
+                if cc >= 10:
+                    Notification.log_and_email("无法取消订单","无法取消订单")
+                    continue
                 return
 
             except Exception as e:
