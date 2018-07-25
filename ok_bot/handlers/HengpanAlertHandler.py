@@ -154,20 +154,24 @@ class SymbolAlert(object):
         if order.ts < self.current_kline.open_time:
             return
 
+        has_new_kline = False
         while not self.current_kline.append_order(order):
             self.push_kline()
+            has_new_kline = True
 
 
 
-        if not self.alerted:
+        if not self.alerted and has_new_kline and len(self.klines) > 2:
             if self.hengpan:
-                if (order.price - self.hengpan_max) / self.hengpan_max >= self.r:
+                last_kline = self.klines[-2]
+                last_kline_close_price = last_kline.close
+                if (last_kline_close_price - self.hengpan_max) / self.hengpan_max >= self.r:
                     self.alerted = True
                     abc=[]
                     for i, val in enumerate(self.tn):
                         abc.append("t%d=%s" % (i+1,time.strftime("%Y/%m/%d %H:%M:%S", time.localtime(val.start_kline.open_time))))
-                    print("%s横盘突破，现价:%f。%s" % (self.symbol, order.price, ", ".join(abc)), order.ts)
-                    self.notify("%s横盘突破，现价:%f。" % (self.symbol, order.price), order.ts)
+                    print("%s横盘突破，现价:%f。%s" % (self.symbol, last_kline_close_price, ", ".join(abc)), order.ts)
+                    self.notify("%s横盘突破，现价:%f。" % (self.symbol, last_kline_close_price), order.ts)
 
 
     def OnNewDeals(self, deals, ts):
