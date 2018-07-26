@@ -6,8 +6,8 @@ import Notification
 
 # 初始化apikey，secretkey,url
 # 初始化apikey，secretkey,url
-apikey = '52928f7e-a6ea-4cc5-b6fb-458cc150dd2b'
-secretkey = 'BB1F6ACEC90BCD53A25FEFA2250D14CF'
+apikey = '6d8d49b0-3296-48e8-878c-0034eda6909c'
+secretkey = 'E3034FD9A09813C4728104300EF2ECF3'
 okcoinRESTURL = 'www.okb.com'  # 请求注意：国内账号需要 修改为 www.okcoin.cn
 
 # 现货API
@@ -84,7 +84,8 @@ class Bot(object):
                     order = json.loads(okcoinSpot.trade(self.symbol, "sell", price, amount))
                     if "order_id" in order:
                         self.orders.append(SellOrder(self.symbol, order["order_id"], price, amount))
-
+            else:
+                print(userinfo)
 
 
         except Exception as e:
