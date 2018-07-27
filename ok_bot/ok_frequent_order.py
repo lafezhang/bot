@@ -37,7 +37,7 @@ class SellOrder(object):
         while 1:
             try:
                 result = json.loads(okcoinSpot.cancelOrder(self.symbol, self.orderid))
-
+                self.update_status()
                 cc = 0
                 while self.status not in [-1, 2, 1] and cc < 10:
                     self.update_status()
