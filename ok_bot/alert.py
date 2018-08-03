@@ -11,16 +11,19 @@ import Notification
 import argparse
 
 import handlers as Handlers
+import ok_api
 
-parser = argparse.ArgumentParser(description='use -t= test folder -s= test symbol -c')
+parser = argparse.ArgumentParser(description='use -t= test folder -s= test symbol -c -bt')
 parser.add_argument('-t', type=str, default=None)
 parser.add_argument('-s', type=str, default=None)
 parser.add_argument('-capture', action='store_true', default=False)
+parser.add_argument('-bt', action='store_true', default=False)
 args = parser.parse_args()
 
 test_folder = args.t
 test_symbol = args.s
 capture_mode = args.capture
+back_test = args.bt
 
 def mkdir(path):
     folder = os.path.exists(path)
@@ -28,11 +31,14 @@ def mkdir(path):
         os.makedirs(path)  # makedirs 创建文件时如果路径不存在会创建这个路径
 
 
-def notify(message, ts):
-    if test_folder:
+def notify(message, ts, title=None):
+    if test_folder or back_test:
         print("%s: %s" % (time.strftime("%Y/%m/%d %H:%M:%S", time.localtime(ts)), message))
     else:
-        Notification.log_and_email(message, message)
+        t = title
+        if not title:
+            t = message
+        Notification.log_and_email(message, t)
 
 
 class PingThread(object):
@@ -66,6 +72,9 @@ class MessageSource(object):
     def dispatch_depth_msg(self, msg, symbol, ts):
         for h in self.handlers:
             h.OnNewDepth(msg, symbol, ts)
+    def dispatch_end(self):
+        for h in self.handlers:
+            h.onEnd()
 
 
     def start(self, params):
@@ -118,6 +127,66 @@ class MessageSourceWebSocket(MessageSource):
         except Exception as e:
             Notification.log(e)
 
+class MessageSourceKline(MessageSource):
+
+    def start(self, params = None):
+        symbols = set()
+        for h in self.handlers:
+            symbols = symbols.union(h.get_cfg_symbols_set())
+
+        apikey = '52928f7e-a6ea-4cc5-b6fb-458cc150dd2b'
+        secretkey = 'BB1F6ACEC90BCD53A25FEFA2250D14CF'
+        okcoinRESTURL = 'www.okb.com'  # 请求注意：国内账号需要 修改为 www.okcoin.cn
+
+        # 现货API
+        okcoinSpot = ok_api.OKCoinSpot(okcoinRESTURL, apikey, secretkey)
+        klines = {}
+        start = 0
+        end = 0
+        for s in symbols:
+            while True:
+                try:
+                    kline = okcoinSpot.kline(s, "1min", 2000, 0)
+                    break
+                except Exception as e:
+                    print(e)
+                    time.sleep(5)
+
+            kline_dict = {}
+            for kk in kline:
+                kk[0] = kk[0]/1000
+                kline_dict[kk[0]] = kk
+
+            if start == 0:
+                start = kline[0][0]
+            if end == 0:
+                end = kline[-1][0]
+
+            klines[s] = kline_dict
+
+        t = start
+        while t < end:
+
+            order_time = time.strftime("%H:%M:%S", time.localtime(t))
+            for s, kline in klines.items():
+                if t in kline:
+                    kk = kline[t]
+
+                    orders = [
+                        ['0', str(kk[1]), str(float(kk[5]) / 4), order_time, "bid"],
+                        ['0', str(kk[2]), str(float(kk[5]) / 4), order_time, "bid"],
+                        ['0', str(kk[3]), str(float(kk[5]) / 4), order_time, "bid"],
+                        ['0', str(kk[4]), str(float(kk[5]) / 4), order_time, "bid"]
+                    ]
+
+                    self.dispatch_deal_msg(orders, s, t)
+
+            t += 60
+
+        self.dispatch_end()
+
+        pass
+
 class MessageSourceDB(MessageSource):
 
     def start(self, params):
@@ -151,13 +220,20 @@ def run_test(db_folder):
 
     pass
 
+def run_back_test():
+    handlers = [
+        Handlers.HengpanAlertHandler(notify, True)
+                ]
+    ss = MessageSourceKline(handlers)
+    ss.start()
+
 def run():
     while 1:
         try:
 
             handlers = [Handlers.VolumeAlertHandler(notify),
                             Handlers.DepthDiffAlertHandler(notify),
-                            Handlers.HengpanAlertHandler(notify)]
+                            Handlers.HengpanAlertHandler(notify, True)]
 
             ws = MessageSourceWebSocket(handlers)
             ws.start()
@@ -167,7 +243,9 @@ def run():
 
 if __name__ == '__main__':
 
-    if test_folder:
+    if back_test:
+        run_back_test()
+    elif test_folder:
         run_test(test_folder)
     else:
         run()

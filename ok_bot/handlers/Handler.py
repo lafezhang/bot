@@ -18,3 +18,6 @@ class Handler(object):
 
     def get_cfg_symbols_set(self):
         return set(self.cfg.keys())
+
+    def onEnd(self):
+        pass
