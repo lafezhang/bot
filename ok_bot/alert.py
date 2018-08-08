@@ -233,7 +233,9 @@ def run():
 
             handlers = [Handlers.VolumeAlertHandler(notify),
                             Handlers.DepthDiffAlertHandler(notify),
-                            Handlers.HengpanAlertHandler(notify, True)]
+                            Handlers.HengpanAlertHandler(notify, 3000, True),
+                            Handlers.HengpanAlertHandler(notify, 1000, True),
+                            Handlers.HengpanAlertHandler(notify, 0,True)]
 
             ws = MessageSourceWebSocket(handlers)
             ws.start()

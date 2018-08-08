@@ -230,7 +230,7 @@ class TN(object):
 
 class SymbolAlert(object):
 
-    def __init__(self, symbol, notify, cfg, kline_duration, hengpan_chanrao_count, back_testing, account):
+    def __init__(self, symbol, notify, cfg, kline_duration, hengpan_chanrao_count, back_testing, account, tupo_money):
         self.hengpan_chanrao_count = hengpan_chanrao_count
         self.account = account
         self.back_testing = back_testing
@@ -251,14 +251,26 @@ class SymbolAlert(object):
 
         self.cc=0
 
+        self.tupo_money = tupo_money
+
     def has_effective_volume(self):
         c = 0
         tk = 0
         for k in self.tn[-1].klines:
             tk += 1
-            if k.total_money < 500:
+            if k.total_money < self.tupo_money:
                 c += 1
 
+        if c / tk > 0.3:
+            return False
+
+        c=0
+        tk=0
+        for tn in self.tn:
+            for k in tn.klines:
+                tk += 1
+                if k.total_money < 1:
+                    c += 1
         if c / tk > 0.3:
             return False
 
@@ -387,12 +399,13 @@ class SymbolAlert(object):
         pass
 
 class HengpanAlertHandler(Handler):
-        def __init__(self, notify, back_testing = False):
+        def __init__(self, notify, tupo_money, back_testing = False):
 
             super().__init__(notify)
+            self.tupo_money = tupo_money
             self.symbol_alerts = {}
             self.back_testing = back_testing
-            self.account = [Account(10000,0.02), Account(10000, 0.03)]
+            self.account = [Account(10000, 0.03)]
             self.lastFlushTime = 0
 
         def cfgFile(self):
@@ -415,7 +428,7 @@ class HengpanAlertHandler(Handler):
 
 
             if symbol not in self.symbol_alerts:
-                self.symbol_alerts[symbol] = SymbolAlert(symbol, self.notify, self.cfg[symbol], 60, 2, self.back_testing, self.account)
+                self.symbol_alerts[symbol] = SymbolAlert(symbol, self.notify, self.cfg[symbol], 60, 2, self.back_testing, self.account, self.tupo_money / 6.5)
 
             alert = self.symbol_alerts[symbol]
             alert.OnNewDeals(deals, ts)
@@ -426,7 +439,7 @@ class HengpanAlertHandler(Handler):
         def send_logs(self):
             for account in self.account:
                 logs = account.flush_logs()
-                self.notify(logs, time.time(), "止损账户%f" % account.zhisun)
+                self.notify(logs, time.time(), "突破成交额%f" % self.tupo_money)
 
         def onEnd(self):
             if self.back_testing:
