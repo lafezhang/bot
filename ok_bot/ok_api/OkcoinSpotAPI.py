@@ -27,11 +27,11 @@ class OKCoinSpot:
         return httpGet(self.__url,DEPTH_RESOURCE,params) 
 
     #获取OKCOIN现货历史交易信息
-    def trades(self,symbol = ''):
+    def trades(self,symbol = '', since = 0):
         TRADES_RESOURCE = "/api/v1/trades.do"
         params=''
         if symbol:
-            params = 'symbol=%(symbol)s' %{'symbol':symbol}
+            params = 'symbol=%(symbol)s&since=%(since)d' %{'symbol':symbol, 'since':since}
         return httpGet(self.__url,TRADES_RESOURCE,params)
     
     #获取用户现货账户信息
