@@ -1,4 +1,6 @@
 {
+  "zhisun" : 0.02,
+  "zhiying" : 0.01,
   "price" : 0.015,
   "k_count": 5,
   "above_ma5" : 0.9,

@@ -100,8 +100,19 @@ class TN(object):
                     green_ratio = green_count / i
                     # print("%s, ma5占比：%f, 绿珠子占比:%f" % (Utils.time_str(candle.ts), above_ma5_ratio, green_ratio))
                     if above_ma5_ratio >= cfg["above_ma5"] and green_ratio >= cfg["green_count"]: #绿珠子满足阈值
-                        return candle
-        return None
+                        return candle, i
+        return None, -1
+
+    def check_sell_point(self, cfg, buy_price, index):
+        i = index
+        while i < len(self.candles):
+            candle = self.candles[i]
+            if candle.close >= buy_price*(1+cfg["zhiying"]):
+                return 1, candle
+            if candle.close <= buy_price*(1-cfg["zhisun"]):
+                return -1, candle
+            i+=1
+        return 0, None
 
 class Coin(object):
 
@@ -156,11 +167,39 @@ class Coin(object):
                     tn = self.tns[-1]
                     tn.push_candle(current_candle)
 
-        # 遍历所有的交汇段
-        for tn in self.tns:
-            buy_point = tn.check_buy_point(self.cfg)
+        if not self.tns:
+            print("没有交汇点")
+            return
+
+        money = 10000
+        coin = 0
+
+        sell_type_str = {1:"止盈卖出", -1:"止损卖出"}
+        while self.tns:
+            tn = self.tns.pop(0)
+            buy_point, index = tn.check_buy_point(self.cfg)
             if buy_point:
-                print("%s, 买入点 %s, 价格：%f" %(self.symbol, Utils.time_str(buy_point.ts), buy_point.close))
+                buy_price = buy_point.close
+                print("%s, 买入点 %s, 价格：%f" %(self.symbol, Utils.time_str(buy_point.ts), buy_price))
+                coin = money / buy_price * 0.998
+                money = 0
+
+                tn2 = tn
+                index2 = index
+                while True:
+                    sell_type, sell_point = tn2.check_sell_point(self.cfg, buy_price, index2)
+                    if sell_point:
+                        money = coin * sell_point.close * 0.998
+                        coin = 0
+                        print("%s, 卖出点 %s, %s, 价格:%f, 收益:%f" %(self.symbol,Utils.time_str(sell_point.ts), sell_type_str[sell_type], sell_point.close, sell_point.close / buy_price -1))
+                        break
+                    if not self.tns:
+                        break
+                    tn2 = self.tns.pop(0)
+                    index2 = 0
+
+        print("最终收益:%f" % ((money - 10000 + coin*price_array[-1])/ 10000))
+
 
 
 
