@@ -92,7 +92,7 @@ class Account(object):
         ll = {"type": '盈利卖出', "price": price, "ts": ts, "symbol":symbol}
         self.get_a_log(symbol).append(ll)
         self.time_line_logs.append(ll)
-        print("%s 卖出:%s, 价格%f，盈利超过%f" % (time.strftime("%Y/%m/%d %H:%M:%S", time.localtime(ts)),symbol, price, coin.sell_step[0]['p'] / coin.buy_price))
+        # print("%s 卖出:%s, 价格%f，盈利超过%f" % (time.strftime("%Y/%m/%d %H:%M:%S", time.localtime(ts)),symbol, price, coin.sell_step[0]['p'] / coin.buy_price))
         self.money += coin.sell_next(price)
         self.print_asserts()
 

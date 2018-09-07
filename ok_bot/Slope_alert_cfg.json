@@ -1,9 +1,0 @@
-{
-  "zhisun" : 0.02,
-  "zhiying" : 0.01,
-  "price" : 0.015,
-  "k_count": 5,
-  "above_ma5" : 0.9,
-  "green_count":0.6,
-  "symbols":["lrc_usdt", "soc_usdt", "insur_usdt", "int_usdt", "zil_usdt", "iota_usdt", "bch_usdt", "nas_usdt", "ont_usdt", "knc_usdt", "fun_usdt", "true_usdt", "swftc_usdt", "cvc_usdt", "mith_usdt", "okb_usdt", "zip_usdt", "cic_usdt", "ors_usdt", "lba_usdt", "fair_usdt", "zec_usdt", "gas_usdt", "theta_usdt", "wfee_usdt", "mco_usdt", "trx_usdt", "wtc_usdt", "ssc_usdt", "zrx_usdt", "pay_usdt", "mana_usdt", "eos_usdt", "xlm_usdt", "elf_usdt", "key_usdt", "pra_usdt", "gnt_usdt", "snt_usdt", "itc_usdt", "btm_usdt", "iost_usdt", "win_usdt", "abt_usdt", "cmt_usdt", "mag_usdt"]
-}

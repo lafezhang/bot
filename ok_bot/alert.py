@@ -222,7 +222,7 @@ def run_test(db_folder):
 
 def run_back_test():
     handlers = [
-        Handlers.HengpanAlertHandler(notify, True)
+                            Handlers.SlopeAlertHandler(notify, True)
                 ]
     ss = MessageSourceKline(handlers)
     ss.start()
@@ -231,11 +231,8 @@ def run():
     while 1:
         try:
 
-            handlers = [Handlers.VolumeAlertHandler(notify),
-                            Handlers.DepthDiffAlertHandler(notify),
-                            Handlers.HengpanAlertHandler(notify, 3000, True),
-                            Handlers.HengpanAlertHandler(notify, 1000, True),
-                            Handlers.HengpanAlertHandler(notify, 0,True)]
+            handlers = [
+                            Handlers.SlopeAlertHandler(notify, True)]
 
             ws = MessageSourceWebSocket(handlers)
             ws.start()

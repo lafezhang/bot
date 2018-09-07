@@ -60,7 +60,7 @@ class Candle(object):
         return -1
 
     def is_green(self):
-        return self.close >= self.open
+        return self.close > self.open
 
     def is_red(self):
         return not self.is_green()
@@ -84,10 +84,11 @@ class TN(object):
     def check_buy_point(self, cfg):
         # print("检查交汇段:%s" % Utils.time_str(self.candles[0].ts))
         price = cfg["price"]
+        lastcandle = None
         for i in range(len(self.candles)):
             candle = self.candles[i]
-            if candle.close >= self.start_price() * (1+price): #涨幅超过了阈值
-                if i > cfg["k_count"]: # k线个数超过阈值
+            if candle.close >= self.start_price() * (1+price) and lastcandle.close < self.start_price() * (1+price): #涨幅超过了阈值
+                if i >= cfg["k_count"]: # k线个数超过阈值
                     above_ma5_count = 0
                     green_count = 0
                     for j in range(i):
@@ -101,6 +102,7 @@ class TN(object):
                     # print("%s, ma5占比：%f, 绿珠子占比:%f" % (Utils.time_str(candle.ts), above_ma5_ratio, green_ratio))
                     if above_ma5_ratio >= cfg["above_ma5"] and green_ratio >= cfg["green_count"]: #绿珠子满足阈值
                         return candle, i
+            lastcandle = self.candles[i]
         return None, -1
 
     def check_sell_point(self, cfg, buy_price, index):
@@ -114,6 +116,9 @@ class TN(object):
             i+=1
         return 0, None
 
+
+
+
 class Coin(object):
 
     def __init__(self, symbol, cfg ):
@@ -126,7 +131,7 @@ class Coin(object):
         self.last_checked_kline_ts = 0
         self.tns = []
 
-    def check_kline(self, time_type, save_dir):
+    def check_kline(self, time_type, save_dir, initial_money):
         self.type = 0
         self.kline_checked = False
         try:
@@ -134,11 +139,11 @@ class Coin(object):
             self.kline_checked = True
             kline_ts = ori_kline[-1][0]
             if kline_ts == self.last_checked_kline_ts:
-                return
+                return initial_money
             self.last_checked_kline_ts = kline_ts
         except:
             print("get kline error:" + self.symbol)
-            return
+            return initial_money
 
         file = open(os.path.join(save_dir, self.symbol + ".kline"), 'w')
         file.write(json.dumps(ori_kline))
@@ -169,9 +174,9 @@ class Coin(object):
 
         if not self.tns:
             print("没有交汇点")
-            return
+            return initial_money
 
-        money = 10000
+        money = initial_money
         coin = 0
 
         sell_type_str = {1:"止盈卖出", -1:"止损卖出"}
@@ -198,92 +203,37 @@ class Coin(object):
                     tn2 = self.tns.pop(0)
                     index2 = 0
 
-        print("最终收益:%f" % ((money - 10000 + coin*price_array[-1])/ 10000))
+        remain_money = money + coin*price_array[-1]
 
-
-
-
-
-
-        # money = 10000
-        # coin = 0
-        #
-        # buy_price = None
-        # for i in range(20, len(price_array), 1):
-        #     price = kline[i]["p"]
-        #     ts = kline[i]['t']/1000
-        #     if buy_price:
-        #         if (price >= (buy_price * (1+self.zhiying))):
-        #             money = coin * price * 0.998
-        #             coin = 0
-        #             print("%s,止盈卖出, 价格%f, 盈利%f" % (time.strftime("%Y/%m/%d %H:%M:%S", time.localtime(ts)),price, price / buy_price - 1))
-        #             buy_price = None
-        #         elif (price <= (buy_price * ( 1- self.zhisun))):
-        #             money = coin * price * 0.998
-        #             coin = 0
-        #             print("%s,止损卖出, 价格%f, 盈利%f" % (time.strftime("%Y/%m/%d %H:%M:%S", time.localtime(ts)),price, price / buy_price - 1))
-        #             buy_price = None
-        #     elif is_buy_vector(tt[i]["ma5"], tt[i]["ma20"]) and not is_buy_vector(tt[i-1]["ma5"], tt[i-1]["ma20"]):
-        #         buy_price = price
-        #         coin = money / price * 0.998
-        #         money = 0
-        #         print("%s,买入,价格:%f" % (time.strftime("%Y/%m/%d %H:%M:%S", time.localtime(ts)), buy_price))
-        # total = money + coin * tt[-1]["p"]
-        # print("当前余额约：%f, 盈利率:%f" % (total, total / 10000 -1))
-
+        print("最终收益:%f" % ((remain_money - initial_money)/ initial_money))
+        return remain_money
 
 
 def run(time_type, interval):
     log('start')
 
-    while True:
-        try:
-            with open('Slope_alert_cfg.json') as d:
-                cfg = json.load(d)
+    try:
+        with open('Slope_alert_cfg.json') as d:
+            cfg = json.load(d)
 
-            from_time = time.time()
-            folder_name = "data/" + time.strftime("%Y-%m-%d_%H:%M:%S", time.localtime(from_time))
+        from_time = time.time()
+        folder_name = "data/" + time.strftime("%Y-%m-%d_%H:%M:%S", time.localtime(from_time))
 
-            Utils.mkdir(folder_name)
+        Utils.mkdir(folder_name)
 
-            for symbol in cfg["symbols"]:
-                print("\n\n回测:%s"%symbol)
-                c = Coin(symbol, cfg)
-                c.check_kline(time_type, folder_name)
+        money = 10000 # 每个币拿这么多钱去玩
+        total_remain_money = 0 # 最终剩余的钱总和
+        total_money = 0 # 总共投入的钱总和
+        for symbol, symbol_cfg in cfg.items():
+            print("\n\n回测:%s" % symbol)
+            c = Coin(symbol, symbol_cfg)
+            total_remain_money += c.check_kline(time_type, folder_name, money)
+            total_money += money
 
+        print("最终总收益:%f" % ((total_remain_money - total_money) / total_money))
 
-
-
-            # account.begin_logs(time_type)
-            # for symbol in symbols:
-            #
-            #     if account.holding_symbol(symbol):
-            #         coin = coins[symbol]
-            #         if coin.has_kline() and coin.is_sell_point():
-            #             (ask1, bid1) = coin.check_price()
-            #             sell_price = ask1 - 0.0001
-            #             account.sell(symbol, sell_price)
-            #             pass
-            #         pass
-            #
-            # if account.has_money():
-            #     for symbol in symbols:
-            #         coin = coins[symbol]
-            #         if coin.has_kline() and coin.is_buy_point() and account.has_money():
-            #             (ask1, bid1) = coin.check_price()
-            #             buy_price = bid1 + 0.0001
-            #             account.buy(symbol, buy_price)
-            #             pass
-            #     pass
-            #
-            # account.flush_logs()
-
-        except Exception as e:
-            raise e
-
-        time.sleep(interval)
-
-        pass
+    except Exception as e:
+        raise e
 
 
 run("1min", 120)
