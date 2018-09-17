@@ -1,242 +1,94 @@
 {
-  "lrc_usdt": {
-    "zhisun": 0.02,
-    "zhiying": 0.035,
-    "price": 0.02,
-    "k_count":20,
-    "above_ma5": 0.5,
-    "green_count": 0.2
+  "abt_usdt": {
+    "zhisun": 0.01,
+    "zhiying": 0.05,
+    "k_count": 40,
+    "above_ma5": 0.7,
+    "green_count": 0.3
+  },
+  "true_usdt": {
+    "zhisun": 0.01,
+    "zhiying": 0.05,
+    "k_count": 35,
+    "above_ma5": 0.7,
+    "green_count": 0.3
+  },
+  "pra_usdt": {
+    "zhisun": 0.01,
+    "zhiying": 0.05,
+    "k_count": 35,
+    "above_ma5": 0.7,
+    "green_count": 0.3
+  },
+  "ctxc_usdt": {
+    "zhisun": 0.01,
+    "zhiying": 0.05,
+    "k_count": 35,
+    "above_ma5": 0.7,
+    "green_count": 0.3
+  },
+  "zec_usdt": {
+    "zhisun": 0.01,
+    "zhiying": 0.01,
+    "k_count": 25,
+    "above_ma5": 0.7,
+    "green_count": 0.3
+  },
+  "zrx_usdt": {
+    "zhisun": 0.01,
+    "zhiying": 0.03,
+    "k_count": 40,
+    "above_ma5": 0.7,
+    "green_count": 0.3
+  },
+   "elf_usdt": {
+    "zhisun": 0.01,
+    "zhiying": 0.01,
+    "k_count": 25,
+    "above_ma5": 0.7,
+    "green_count": 0.1
+  },
+  "mith_usdt": {
+    "zhisun": 0.01,
+    "zhiying": 0.05,
+    "k_count": 40,
+    "above_ma5": 0.7,
+    "green_count": 0.1
+  },
+  "knc_usdt": {
+    "zhisun": 0.01,
+    "zhiying": 0.01,
+    "k_count": 25,
+    "above_ma5": 0.0,
+    "green_count": 0.1
   },
   "int_usdt": {
-    "zhisun": 0.02,
-    "zhiying": 0.035,
-    "price": 0.02,
-    "k_count": 20,
-    "above_ma5": 0.5,
-    "green_count": 0.2
-  },
-  "zil_usdt": {
-    "zhisun": 0.02,
-    "zhiying": 0.035,
-    "price": 0.02,
-    "k_count": 20,
-    "above_ma5": 0.5,
-    "green_count": 0.2
-  },
-  "iota_usdt": {
-    "zhisun": 0.02,
-    "zhiying": 0.035,
-    "price": 0.02,
-    "k_count": 20,
-    "above_ma5": 0.5,
-    "green_count": 0.2
+    "zhisun": 0.01,
+    "zhiying": 0.05,
+    "k_count": 40,
+    "above_ma5": 0.7,
+    "green_count": 0.1
   },
   "nas_usdt": {
     "zhisun": 0.02,
-    "zhiying": 0.035,
-    "price": 0.02,
-    "k_count": 20,
-    "above_ma5": 0.5,
-    "green_count": 0.2
+    "zhiying": 0.01,
+    "k_count": 25,
+    "above_ma5": 0.7,
+    "green_count": 0.1
   },
   "ont_usdt": {
-    "zhisun": 0.02,
-    "zhiying": 0.035,
-    "price": 0.02,
-    "k_count": 20,
-    "above_ma5": 0.5,
-    "green_count": 0.2
+    "zhisun": 0.01,
+    "zhiying": 0.01,
+    "k_count": 25,
+    "above_ma5": 0.7,
+    "green_count": 0.1
   },
-  "knc_usdt": {
-    "zhisun": 0.02,
-    "zhiying": 0.035,
-    "price": 0.02,
-    "k_count": 20,
-    "above_ma5": 0.5,
-    "green_count": 0.2
-  },
-  "eos_usdt": {
-    "zhisun": 0.02,
-    "zhiying": 0.015,
-    "price": 0.01,
-    "k_count": 20,
-    "above_ma5": 0.5,
-    "green_count": 0.2
-  },
-  "bch_usdt": {
-    "zhisun": 0.02,
-    "zhiying": 0.015,
-    "price": 0.01,
-    "k_count": 20,
-    "above_ma5": 0.5,
-    "green_count": 0.2
-  },
-  "eth_usdt": {
-    "zhisun": 0.02,
-    "zhiying": 0.015,
-    "price": 0.01,
-    "k_count": 20,
-    "above_ma5": 0.5,
-    "green_count": 0.2
-  },
-  "okb_usdt": {
-    "zhisun": 0.02,
-    "zhiying": 0.035,
-    "price": 0.02,
-    "k_count": 20,
-    "above_ma5": 0.5,
-    "green_count": 0.2
-  },
-  "etc_usdt": {
-    "zhisun": 0.02,
-    "zhiying": 0.015,
-    "price": 0.01,
-    "k_count": 20,
-    "above_ma5": 0.5,
-    "green_count": 0.2
-  },
-  "cvc_usdt": {
-    "zhisun": 0.02,
-    "zhiying": 0.035,
-    "price": 0.02,
-    "k_count": 20,
-    "above_ma5": 0.5,
-    "green_count": 0.2
-  },
-  "mith_usdt": {
-    "zhisun": 0.02,
-    "zhiying": 0.035,
-    "price": 0.02,
-    "k_count": 20,
-    "above_ma5": 0.5,
-    "green_count": 0.2
-  },
-  "lba_usdt": {
-    "zhisun": 0.02,
-    "zhiying": 0.035,
-    "price": 0.02,
-    "k_count": 20,
-    "above_ma5": 0.5,
-    "green_count": 0.2
-  },
-  "zec_usdt": {
-    "zhisun": 0.02,
-    "zhiying": 0.035,
-    "price": 0.02,
-    "k_count": 20,
-    "above_ma5": 0.5,
-    "green_count": 0.2
-  },
-  "gas_usdt": {
-    "zhisun": 0.02,
-    "zhiying": 0.035,
-    "price": 0.02,
-    "k_count": 20,
-    "above_ma5": 0.5,
-    "green_count": 0.2
-  },
-  "mco_usdt": {
-    "zhisun": 0.02,
-    "zhiying": 0.035,
-    "price": 0.02,
-    "k_count": 20,
-    "above_ma5": 0.5,
-    "green_count": 0.2
-  },
-  "trx_usdt": {
-    "zhisun": 0.02,
-    "zhiying": 0.035,
-    "price": 0.02,
-    "k_count": 20,
-    "above_ma5": 0.5,
-    "green_count": 0.2
-  },
-  "wtc_usdt": {
-    "zhisun": 0.02,
-    "zhiying": 0.035,
-    "price": 0.02,
-    "k_count": 20,
-    "above_ma5": 0.5,
-    "green_count": 0.2
-  },
-  "zrx_usdt": {
-    "zhisun": 0.02,
-    "zhiying": 0.035,
-    "price": 0.02,
-    "k_count": 20,
-    "above_ma5": 0.5,
-    "green_count": 0.2
-  },
-  "pay_usdt": {
-    "zhisun": 0.02,
-    "zhiying": 0.035,
-    "price": 0.02,
-    "k_count": 20,
-    "above_ma5": 0.5,
-    "green_count": 0.2
-  },
-  "xlm_usdt": {
-    "zhisun": 0.02,
-    "zhiying": 0.03,
-    "price": 0.02,
-    "k_count": 20,
-    "above_ma5": 0.5,
-    "green_count": 0.2
-  },
-  "elf_usdt": {
-    "zhisun": 0.02,
-    "zhiying": 0.03,
-    "price": 0.02,
-    "k_count": 20,
-    "above_ma5": 0.5,
-    "green_count": 0.2
-  },
-  "gnt_usdt": {
-    "zhisun": 0.02,
-    "zhiying": 0.03,
-    "price": 0.02,
-    "k_count": 20,
-    "above_ma5": 0.5,
-    "green_count": 0.2
-  },
-  "snt_usdt": {
-    "zhisun": 0.02,
-    "zhiying": 0.03,
-    "price": 0.02,
-    "k_count": 20,
-    "above_ma5": 0.5,
-    "green_count": 0.2
-  },
-  "itc_usdt": {
-    "zhisun": 0.02,
-    "zhiying": 0.03,
-    "price": 0.02,
-    "k_count": 20,
-    "above_ma5": 0.5,
-    "green_count": 0.2
-  },
-  "btm_usdt": {
-    "zhisun": 0.02,
-    "zhiying": 0.03,
-    "price": 0.02,
-    "k_count": 20,
-    "above_ma5": 0.5,
-    "green_count": 0.2
-  },
-  "abt_usdt": {
-    "zhisun": 0.02,
-    "zhiying": 0.03,
-    "price": 0.02,
-    "k_count": 20,
-    "above_ma5": 0.5,
-    "green_count": 0.2
-  },
-  "cmt_usdt": {
-    "zhisun": 0.02,
-    "zhiying": 0.03,
-    "price": 0.02,
-    "k_count": 20,
-    "above_ma5": 0.5,
-    "green_count": 0.2
+  "ppt_usdt": {
+    "zhisun": 0.01,
+    "zhiying": 0.01,
+    "k_count": 25,
+    "above_ma5": 0.7,
+    "green_count": 0.1
   }
+
 }

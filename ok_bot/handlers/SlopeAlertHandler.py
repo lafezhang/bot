@@ -165,7 +165,6 @@ class SymbolAlert(object):
         log = "%s, %s:%f" % (Utils.time_str(ts), type, price)
         self.logs.append(log)
 
-        self.notify(log, time.time(), "斜率策略买入点%s" % self.symbol)
 
 
     def buy_all(self, price, ts):
@@ -175,6 +174,8 @@ class SymbolAlert(object):
         self.skipped_count = 0
         log = "%s, 买入:%f" % (Utils.time_str(ts), price)
         self.logs.append(log)
+        
+        self.notify(log, time.time(), "斜率策略买入点%s" % self.symbol)
 
     def total_money(self):
         if self.coin_count > 0:
