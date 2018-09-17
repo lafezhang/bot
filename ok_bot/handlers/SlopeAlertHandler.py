@@ -25,6 +25,11 @@ class Candle(object):
         self.ma20 = self.ma5 = 0
         self.open_time = open_time
         self.total_money = 0
+        self.ema12=0
+        self.ema26=0
+        self.diff=0
+        self.dea=0
+        self.macd=0
 
 
     def set_all_price(self, price):
@@ -88,12 +93,12 @@ class TN(object):
 
     def check_buy_point(self, cfg):
         # print("检查交汇段:%s" % Utils.time_str(self.candles[0].ts))
-        price = cfg["price"]
-        lastcandle = self.candles[-1]
+        # price = cfg["price"]
+        # lastcandle = self.candles[-1]
 
-        if lastcandle.close < self.start_price() * (1 + price):
-            # 涨幅没满足
-            return False
+        # if lastcandle.close < self.start_price() * (1 + price):
+        #     # 涨幅没满足
+        #     return False
 
         if len(self.candles) < cfg["k_count"]:
             # k线个数没满足
@@ -114,6 +119,19 @@ class TN(object):
 
         return False
 
+    def buy_info(self):
+
+        above_ma5_count = 0
+        green_count = 0
+        for cc in self.candles:
+            if cc.is_green():
+                green_count += 1
+            if cc.is_above_ma5():
+                above_ma5_count += 1
+        above_ma5_ratio = float(above_ma5_count) / len(self.candles)
+        green_ratio = float(green_count) / len(self.candles)
+
+        return "kline_count:%d, above_ma5_ratio:%f, green_ratio:%f" %(len(self.candles), above_ma5_ratio, green_ratio)
 
 class SymbolAlert(object):
 
@@ -133,8 +151,11 @@ class SymbolAlert(object):
         self.total_candle_count = 0
         self.coin_count = 0
         self.buy_price = 0
+        self.skipped_count = 0
 
         self.logs = []
+
+        self.sss = 0
 
 
     def sell_all(self,price, type, ts):
@@ -151,6 +172,7 @@ class SymbolAlert(object):
         self.coin_count = self.money / price  * 0.998
         self.money = 0
         self.buy_price = price
+        self.skipped_count = 0
         log = "%s, 买入:%f" % (Utils.time_str(ts), price)
         self.logs.append(log)
 
@@ -161,10 +183,26 @@ class SymbolAlert(object):
 
     def push_candle(self):
         self.total_candle_count += 1
-
         current_candle = self.current_candle
         if len(current_candle.orders) == 0:
             current_candle.set_all_price(self.candles[-1].close)
+
+        if len(current_candle.orders) != 4:
+            pass
+
+        if not self.candles:
+            current_candle.ema12=current_candle.close
+            current_candle.ema26=current_candle.close
+            current_candle.diff = current_candle.ema12 - current_candle.ema26
+            current_candle.dea=current_candle.diff
+        else:
+            last_candle = self.candles[-1]
+            current_candle.ema12 = 2.0/13 * current_candle.close + 11.0/13*last_candle.ema12
+            current_candle.ema26 = 2.0/27 * current_candle.close + 25.0/13*last_candle.ema26
+            current_candle.diff = current_candle.ema12 - current_candle.ema26
+            current_candle.dea = 2.0/10 * current_candle.diff + 8.0/10 * last_candle.dea
+
+        current_candle.macd = 2*(current_candle.diff - current_candle.dea)
 
         self.candles.append(current_candle)
         if len(self.candles) >= 20:
@@ -185,25 +223,31 @@ class SymbolAlert(object):
             if len(self.candles) >= 21:
                 # 只有超过21个kline，才能确定当前是不是交汇点
 
-                if self.tn:
-                    self.tn.push_candle(current_candle)
-                    if self.coin_count > 0:
-                        should_sell = False
-                        sell_type = None
-                        if current_candle.close >= self.buy_price * (1 + self.cfg["zhiying"]):
-                            should_sell = True
-                            sell_type = "止盈卖出"
-                        if current_candle.close <= self.buy_price * (1 - self.cfg["zhisun"]):
-                            should_sell = True
-                            sell_type = "止损卖出"
-
-                        if should_sell:
-                            self.sell_all(current_candle.close, sell_type,current_candle.orders[-1].ts)
-                            self.tn = None
-
-
                 last_candle = self.candles[-2]
-                if (last_candle.ma_type() * current_candle.ma_type() == -1):
+
+                if self.coin_count > 0:
+                    should_sell = False
+                    sell_type = None
+                    if current_candle.close >= self.buy_price * (1 + self.cfg["zhiying"]):
+                        should_sell = True
+                        sell_type = "止盈卖出"
+                    if current_candle.close <= self.buy_price * (1 - self.cfg["zhisun"]):
+                        should_sell = True
+                        sell_type = "止损卖出"
+                    if (last_candle.ma_type() > 0 and current_candle.ma_type() < 0):
+                        if self.skipped_count == 1:
+                            should_sell = True
+                            sell_type = "缠绕结束卖出"
+                        else:
+                            self.skipped_count+=1
+
+                    if should_sell:
+                        self.sell_all(current_candle.close, sell_type, current_candle.orders[-1].ts)
+                        self.tn = None
+
+
+                if (last_candle.ma_type() < 0 and current_candle.ma_type() > 0):
+                    self.logs.append("%s, 缠绕开始" % (Utils.time_str(current_candle.open_time)))
                     self.tn = TN()
 
                 if self.tn:
@@ -211,6 +255,7 @@ class SymbolAlert(object):
                     if self.money > 0.0001:
                         should_buy = self.tn.check_buy_point(self.cfg)
                         if should_buy:
+                            self.logs.append(self.tn.buy_info())
                             self.buy_all(current_candle.close, current_candle.orders[-1].ts)
 
 
@@ -236,6 +281,7 @@ class SymbolAlert(object):
 
 
     def OnNewDeals(self, deals, ts):
+
         date = time.strftime("%Y-%m-%d", time.localtime(ts))
         for order in deals:
             order_date = order[3]

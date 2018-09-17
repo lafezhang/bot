@@ -33,7 +33,7 @@ def mkdir(path):
 
 def notify(message, ts, title=None):
     if test_folder or back_test:
-        print("%s: %s" % (time.strftime("%Y/%m/%d %H:%M:%S", time.localtime(ts)), message))
+        print("%s\n%s: %s" % (title,time.strftime("%Y/%m/%d %H:%M:%S", time.localtime(ts)), message))
     else:
         t = title
         if not title:
