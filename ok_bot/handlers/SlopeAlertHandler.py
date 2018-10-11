@@ -22,14 +22,10 @@ class Candle(object):
 
         self.open = self.close = self.high = self.low = 0
         self.buy_vol = self.sel_vol = 0
-        self.ma20 = self.ma5 = 0
+        self.ma80 = self.ma40 = self.ma5 = 0
+
         self.open_time = open_time
         self.total_money = 0
-        self.ema12=0
-        self.ema26=0
-        self.diff=0
-        self.dea=0
-        self.macd=0
 
 
     def set_all_price(self, price):
@@ -64,19 +60,6 @@ class Candle(object):
     def elapsed_time(self, ts):
         return ts-self.open_time;
 
-    def ma_type(self):
-        if self.ma5 > self.ma20:
-            return 1
-        return -1
-
-    def is_green(self):
-        return self.close > self.open
-
-    def is_red(self):
-        return not self.is_green()
-    def is_above_ma5(self):
-        return self.close >= self.ma5
-
 
 #表示一个交汇段
 class TN(object):
@@ -90,48 +73,6 @@ class TN(object):
     def start_price(self):
         return self.candles[0].close
 
-
-    def check_buy_point(self, cfg):
-        # print("检查交汇段:%s" % Utils.time_str(self.candles[0].ts))
-        # price = cfg["price"]
-        # lastcandle = self.candles[-1]
-
-        # if lastcandle.close < self.start_price() * (1 + price):
-        #     # 涨幅没满足
-        #     return False
-
-        if len(self.candles) < cfg["k_count"]:
-            # k线个数没满足
-            return False
-
-        above_ma5_count = 0
-        green_count = 0
-        for cc in self.candles:
-            if cc.is_green():
-                green_count += 1
-            if cc.is_above_ma5():
-                above_ma5_count += 1
-        above_ma5_ratio = float(above_ma5_count) / len(self.candles)
-        green_ratio = float(green_count) / len(self.candles)
-
-        if above_ma5_ratio >= cfg["above_ma5"] and green_ratio >= cfg["green_count"]:  # 绿珠子满足阈值
-            return True
-
-        return False
-
-    def buy_info(self):
-
-        above_ma5_count = 0
-        green_count = 0
-        for cc in self.candles:
-            if cc.is_green():
-                green_count += 1
-            if cc.is_above_ma5():
-                above_ma5_count += 1
-        above_ma5_ratio = float(above_ma5_count) / len(self.candles)
-        green_ratio = float(green_count) / len(self.candles)
-
-        return "kline_count:%d, above_ma5_ratio:%f, green_ratio:%f" %(len(self.candles), above_ma5_ratio, green_ratio)
 
 class SymbolAlert(object):
 
@@ -151,30 +92,35 @@ class SymbolAlert(object):
         self.total_candle_count = 0
         self.coin_count = 0
         self.buy_price = 0
-        self.skipped_count = 0
+
+        self.ma40up = False
+        self.ma40_time = 0
+        self.ma40up_count = 0
+
+        self.ma80up = False
+        self.ma80_time = 0
+        self.ma80up_count = 0
 
         self.logs = []
 
-        self.sss = 0
-
 
     def sell_all(self,price, type, ts):
+        log = "%s, %s:%f, 收益:%.4f" % (Utils.time_str(ts), type, price, price / self.buy_price - 1)
         self.money = price * self.coin_count * 0.998
         self.coin_count = 0
         self.buy_price = 0
-        log = "%s, %s:%f" % (Utils.time_str(ts), type, price)
         self.logs.append(log)
 
 
 
-    def buy_all(self, price, ts):
+    def buy_all(self, price, ts, append_log=""):
         self.coin_count = self.money / price  * 0.998
         self.money = 0
         self.buy_price = price
         self.skipped_count = 0
-        log = "%s, 买入:%f" % (Utils.time_str(ts), price)
+        log = "%s, 买入:%f, %s" % (Utils.time_str(ts), price, append_log)
         self.logs.append(log)
-        
+
         self.notify(log, time.time(), "斜率策略买入点%s" % self.symbol)
 
     def total_money(self):
@@ -188,25 +134,9 @@ class SymbolAlert(object):
         if len(current_candle.orders) == 0:
             current_candle.set_all_price(self.candles[-1].close)
 
-        if len(current_candle.orders) != 4:
-            pass
-
-        if not self.candles:
-            current_candle.ema12=current_candle.close
-            current_candle.ema26=current_candle.close
-            current_candle.diff = current_candle.ema12 - current_candle.ema26
-            current_candle.dea=current_candle.diff
-        else:
-            last_candle = self.candles[-1]
-            current_candle.ema12 = 2.0/13 * current_candle.close + 11.0/13*last_candle.ema12
-            current_candle.ema26 = 2.0/27 * current_candle.close + 25.0/13*last_candle.ema26
-            current_candle.diff = current_candle.ema12 - current_candle.ema26
-            current_candle.dea = 2.0/10 * current_candle.diff + 8.0/10 * last_candle.dea
-
-        current_candle.macd = 2*(current_candle.diff - current_candle.dea)
 
         self.candles.append(current_candle)
-        if len(self.candles) >= 20:
+        if len(self.candles) >= 80:
 
             # 只有超过20个kline，才能计算计算ma
             total = 0
@@ -216,55 +146,78 @@ class SymbolAlert(object):
 
             current_candle.ma5 = total / 5
 
-            for i in range(-6, -21, -1):
+            for i in range(-6, -41, -1):
                 total += self.candles[i].close
 
-            current_candle.ma20 = total / 20
+            current_candle.ma40 = total / 40
 
-            if len(self.candles) >= 21:
-                # 只有超过21个kline，才能确定当前是不是交汇点
+            for i in range(-41, -81, -1):
+                total += self.candles[i].close
 
-                last_candle = self.candles[-2]
+            current_candle.ma80 = total / 80
 
-                if self.coin_count > 0:
-                    should_sell = False
-                    sell_type = None
-                    if current_candle.close >= self.buy_price * (1 + self.cfg["zhiying"]):
-                        should_sell = True
-                        sell_type = "止盈卖出"
-                    if current_candle.close <= self.buy_price * (1 - self.cfg["zhisun"]):
-                        should_sell = True
-                        sell_type = "止损卖出"
-                    if (last_candle.ma_type() > 0 and current_candle.ma_type() < 0):
-                        if self.skipped_count == 1:
-                            should_sell = True
-                            sell_type = "缠绕结束卖出"
-                        else:
-                            self.skipped_count+=1
-
-                    if should_sell:
-                        self.sell_all(current_candle.close, sell_type, current_candle.orders[-1].ts)
-                        self.tn = None
+            last_candle = self.candles[-2]
 
 
-                if (last_candle.ma_type() < 0 and current_candle.ma_type() > 0):
-                    self.logs.append("%s, 缠绕开始" % (Utils.time_str(current_candle.open_time)))
-                    self.tn = TN()
+            if current_candle.ma5 >= current_candle.ma80 and last_candle.ma5 < last_candle.ma80:
+                self.ma80up = current_candle.ma80 > last_candle.ma80
+                self.ma80_time = current_candle.orders[-1].ts
+                self.ma40up_count = 0
+            elif current_candle.ma5 <= current_candle.ma80 and last_candle.ma5 > last_candle.ma80:
+                self.ma80up = False
 
-                if self.tn:
-                    self.tn.push_candle(current_candle)
-                    if self.money > 0.0001:
-                        should_buy = self.tn.check_buy_point(self.cfg)
-                        if should_buy:
-                            self.logs.append(self.tn.buy_info())
-                            self.buy_all(current_candle.close, current_candle.orders[-1].ts)
+            if current_candle.ma5 >= current_candle.ma40 and last_candle.ma5 < last_candle.ma40:
+                #小缠绕开始点,记录斜率
+                self.ma40up = current_candle.ma40 > last_candle.ma40
+                self.ma40_time = current_candle.orders[-1].ts
+                if self.ma80up:
+                    self.ma40up_count+=1
+            elif current_candle.ma5 <= current_candle.ma40 and last_candle.ma5 > last_candle.ma40:
+                self.ma40up = False
 
+            if current_candle.ma5 >= current_candle.ma80 and last_candle.ma5 < last_candle.ma80:
+                if self.ma40up:
+                    self.ma40up_count = 0
 
+            if self.coin_count > 0:
+                should_sell = False
+                sell_type = None
 
+                if current_candle.close >= self.buy_price * (1 + self.cfg["zhiying"]) \
+                        and current_candle.ma5 < self.candles[-2].ma5 < self.candles[-3].ma5:
+                    should_sell = True
+                    sell_type = "止盈卖出"
+                if current_candle.close <= self.buy_price * (1 - self.cfg["zhisun"]):
+                    should_sell = True
+                    sell_type = "止损卖出"
+
+                if self.ma40up and current_candle.ma5 < current_candle.ma80:
+                    should_sell = True
+                    sell_type = "缠绕结束卖出"
+
+                if should_sell:
+                    self.sell_all(current_candle.close, sell_type, current_candle.orders[-1].ts)
+            elif self.money > 0.0001:
+                if current_candle.ma5 >= current_candle.ma80 and last_candle.ma5 < last_candle.ma80:
+                    # 大缠绕上涨开始
+                    if current_candle.ma5 >= current_candle.ma40:
+                        # 小缠绕也是上涨中
+                        ma80up = current_candle.ma80 > last_candle.ma80
+
+                        if ma80up or self.ma40up:
+                            # 有一个是斜率向上，则买入
+                            self.buy_all(current_candle.close, current_candle.orders[-1].ts, "小在大前，ma80向上" if ma80up else ("小在大前，ma40向上，ma40上涨缠绕开始时间:%s" % (Utils.time_str(self.ma40_time))))
+                if self.money > 0.0001:
+                    if current_candle.ma5 >= current_candle.ma40 and last_candle.ma5 < last_candle.ma40:
+                        # 小缠绕开始上涨
+                        if self.ma40up_count == 1 and current_candle.ma5 >= current_candle.ma80:
+                            # 大缠绕上涨中，并且此小缠绕是第一个
+                            if self.ma80up:
+                                self.buy_all(current_candle.close, current_candle.orders[-1].ts,"大在小前" )
 
         self.current_candle = Candle(current_candle.open_time + self.kline_duration, self.kline_duration)
-        if len(self.candles) > 100:
-            self.candles = self.candles[-30:]
+        if len(self.candles) > 200:
+            self.candles = self.candles[-120:]
 
         pass
 
@@ -330,7 +283,7 @@ class SlopeAlertHandler(Handler):
 
 
             if symbol not in self.symbol_alerts:
-                self.symbol_alerts[symbol] = SymbolAlert(symbol, self.notify, self.cfg[symbol], 60, 10000, self.back_testing)
+                self.symbol_alerts[symbol] = SymbolAlert(symbol, self.notify, self.cfg[symbol], 15* 60, 10000, self.back_testing)
 
             alert = self.symbol_alerts[symbol]
             alert.OnNewDeals(deals, ts)

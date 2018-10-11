@@ -1,93 +1,93 @@
 {
-  "abt_usdt": {
-    "zhisun": 0.01,
+  "nas_usdt": {
+    "zhisun": 0.05,
     "zhiying": 0.05,
-    "k_count": 40,
+    "k_count": 30,
     "above_ma5": 0.7,
     "green_count": 0.3
   },
-  "true_usdt": {
-    "zhisun": 0.01,
+   "zip_usdt": {
+    "zhisun": 0.05,
     "zhiying": 0.05,
-    "k_count": 35,
-    "above_ma5": 0.7,
-    "green_count": 0.3
-  },
-  "pra_usdt": {
-    "zhisun": 0.01,
-    "zhiying": 0.05,
-    "k_count": 35,
-    "above_ma5": 0.7,
-    "green_count": 0.3
-  },
-  "ctxc_usdt": {
-    "zhisun": 0.01,
-    "zhiying": 0.05,
-    "k_count": 35,
-    "above_ma5": 0.7,
-    "green_count": 0.3
-  },
-  "zec_usdt": {
-    "zhisun": 0.01,
-    "zhiying": 0.01,
-    "k_count": 25,
+    "k_count": 30,
     "above_ma5": 0.7,
     "green_count": 0.3
   },
   "zrx_usdt": {
-    "zhisun": 0.01,
-    "zhiying": 0.03,
-    "k_count": 40,
+    "zhisun": 0.05,
+    "zhiying": 0.05,
+    "k_count": 30,
     "above_ma5": 0.7,
     "green_count": 0.3
   },
-   "elf_usdt": {
-    "zhisun": 0.01,
-    "zhiying": 0.01,
-    "k_count": 25,
-    "above_ma5": 0.7,
-    "green_count": 0.1
-  },
-  "mith_usdt": {
-    "zhisun": 0.01,
+   "knc_usdt": {
+    "zhisun": 0.05,
     "zhiying": 0.05,
-    "k_count": 40,
+    "k_count": 30,
     "above_ma5": 0.7,
-    "green_count": 0.1
+    "green_count": 0.3
   },
-  "knc_usdt": {
-    "zhisun": 0.01,
-    "zhiying": 0.01,
-    "k_count": 25,
+    "gas_usdt": {
+    "zhisun": 0.05,
+    "zhiying": 0.05,
+    "k_count": 30,
+    "above_ma5": 0.7,
+    "green_count": 0.3
+  },
+  "ont_usdt": {
+    "zhisun": 0.02,
+    "zhiying": 0.02,
+    "k_count": 60,
     "above_ma5": 0.0,
     "green_count": 0.1
   },
-  "int_usdt": {
-    "zhisun": 0.01,
-    "zhiying": 0.05,
-    "k_count": 40,
-    "above_ma5": 0.7,
-    "green_count": 0.1
-  },
-  "nas_usdt": {
+  "eth_usdt": {
     "zhisun": 0.02,
-    "zhiying": 0.01,
-    "k_count": 25,
-    "above_ma5": 0.7,
+    "zhiying": 0.02,
+    "k_count": 60,
+    "above_ma5": 0.0,
     "green_count": 0.1
   },
-  "ont_usdt": {
-    "zhisun": 0.01,
-    "zhiying": 0.01,
-    "k_count": 25,
-    "above_ma5": 0.7,
+  "etc_usdt": {
+    "zhisun": 0.02,
+    "zhiying": 0.02,
+    "k_count": 60,
+    "above_ma5": 0.0,
     "green_count": 0.1
   },
-  "ppt_usdt": {
-    "zhisun": 0.01,
-    "zhiying": 0.01,
-    "k_count": 25,
-    "above_ma5": 0.7,
+  "ltc_usdt": {
+    "zhisun": 0.02,
+    "zhiying": 0.02,
+    "k_count": 60,
+    "above_ma5": 0.0,
+    "green_count": 0.1
+  },
+  "dash_usdt": {
+    "zhisun": 0.015,
+    "zhiying": 0.02,
+    "k_count": 60,
+    "above_ma5": 0.0,
+    "green_count": 0.1
+  },
+   "bch_usdt": {
+    "zhisun": 0.02,
+    "zhiying": 0.02,
+    "k_count": 60,
+    "above_ma5": 0.0,
+    "green_count": 0.1
+  },
+  "okb_usdt": {
+    "zhisun": 0.03,
+    "zhiying": 0.03,
+    "k_count": 60,
+    "above_ma5": 0.0,
+    "green_count": 0.1
+  },
+  "eos_usdt": {
+    "zhisun": 0.02,
+    "zhiying": 0.02,
+    "k_count": 60,
+    "above_ma5": 0.0,
     "green_count": 0.1
   }
 

@@ -146,7 +146,7 @@ class MessageSourceKline(MessageSource):
         for s in symbols:
             while True:
                 try:
-                    kline = okcoinSpot.kline(s, "1min", 2000, 0)
+                    kline = okcoinSpot.kline(s, "15min", 2000, 0)
                     break
                 except Exception as e:
                     print(e)
